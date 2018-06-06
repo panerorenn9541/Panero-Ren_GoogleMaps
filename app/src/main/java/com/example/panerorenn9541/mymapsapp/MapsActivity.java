@@ -38,8 +38,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private boolean canGetLocation = false;
     private boolean gotMyLocatioinOneTime;
     private double latitude, longitude;
+    private boolean notTrackingMyLocation = true;
+    private boolean sat = false;
 
-    private static final long MIN_TIME_BW_UPDATES = 1000*5;
+    private static final long MIN_TIME_BW_UPDATES = 1000 * 5;
     private static final float MIN_DISTANCE_CHANGE_FOR_UPDATES = 0.0f;
     private static final int MY_LOC_ZOOM_FACTOR = 17;
 
@@ -69,24 +71,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng birthPlace = new LatLng(32.6941 , -117.1684);
+        LatLng birthPlace = new LatLng(32.6941, -117.1684);
         mMap.addMarker(new MarkerOptions().position(birthPlace).title("Born Here"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(birthPlace));
 
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED)
-        {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.d("MyMapsApp", "Failed FINE Permission Check");
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, 2);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
         }
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)!= PackageManager.PERMISSION_GRANTED)
-        {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.d("MyMapsApp", "Failed COARSE Permission Check");
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_COARSE_LOCATION}, 2);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 2);
         }
 
-        if((ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)== PackageManager.PERMISSION_GRANTED) ||
-                (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)== PackageManager.PERMISSION_GRANTED))
-        {
+        if ((ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) ||
+                (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
             Log.d("MyMapsApp", " Permission Check");
             mMap.setMyLocationEnabled(true);
         }
@@ -99,18 +98,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     //Add a view button and method to switch between satellite and map views
-    public void changeView(View view)
-    {
-        if(mMap.getMapType() == 0)
-        {
-            mMap.setMapType(mMap.MAP_TYPE_SATELLITE);
+    public void changeView(View view) {
+        if (sat == false) {
+            mMap.setMapType(2);
+            sat = true;
         }
-        if(mMap.getMapType() == 2)
-        {
-            mMap.setMapType(mMap.MAP_TYPE_NORMAL);
+        else if (sat == true) {
+            mMap.setMapType(1);
+            sat = false;
         }
     }
-
+}
     public void onSearch(View view)
     {
         String location = locationSearch.getText().toString();
@@ -279,12 +277,80 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         @Override
         public void onProviderEnabled(String provider) {
-
+            return;
         }
 
         @Override
         public void onProviderDisabled(String provider) {
+            return;
+        }
+    };
+
+    LocationListener locationListenerGps = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+
+            dropAmarker(LocationManager.GPS_PROVIDER);
+            //if doing one time, remove updates to both gps and network
+            //else, do nothing
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            //switch (status)
+                //case LocationProvider.AVAILABLE:
+                //print log.d or toast message
+                //break;
+                //case LacationProvider.OUT_OF_SERVICE:
+                //enable network update
+                //break;
+                //case LocationProvider.TEMPORARILY_UNAVAILABLE:
+                //enable both network and gps
+                //break;
+                //default:
+                //enable both network and gps
 
         }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+            return;
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+            return;
+        }
+    };
+
+    public void dropAmarker(String provider)
+    {
+        //if (locationManager != null)
+            //if(checkSelfPermission) fails
+                //return;
+            //myLocation = locationManager.getLastKnownLocation(provider)
+        //LatLng userLocation = null;
+        //if (myLocation == null) print log or toast message
+        //else
+            //userLocation = new LatLng(myLocation.getLatitude, myLocation.getLongitude);
+            //CameraUpdate update = CameraUpdateFactory.newLatLngZoom(userLocation, MY_LOC_ZOOM_FACTOR);
+            //if (provider == LocationManager.GPS_PROVIDER)
+                //add circle for the marker with 2 outer rings (red)
+                //mMap.addCircle(new CircleOptions())
+                    //.center(userLocation)
+                    //.radius(1)
+                    //.strokeColor(Color.RED)
+                    //.strokeWidth(2)
+                    //.fillColor(Color.RED))
+            //else add circle for the marker with two outer rings (blue)
+            //mMap.animateCamera(update)
+    }
+
+    public void trackMyLocation(View view)
+    {
+        //kick off the location tracker using getLocation to start the LocationListeners
+        //if(notTrackingMyLocation) getLocation(); notTrackingMyLocation = false;
+        //else removeUpdates for both network and gps; notTrackingMyLocation = true;
     }
 }
