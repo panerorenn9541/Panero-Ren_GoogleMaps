@@ -23,19 +23,21 @@
             android:text="View"></Button>
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/Clear"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right"
-            android:text="Button" />
+            android:onClick="clearMarkers"
+            android:text="Clear" />
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/Track"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Button" />
+            android:onClick="trackMyLocation"
+            android:text="Track" />
     </LinearLayout>
 
     <!-- Layout for the Search -->

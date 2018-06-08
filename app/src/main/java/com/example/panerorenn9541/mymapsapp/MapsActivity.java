@@ -116,15 +116,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String location = locationSearch.getText().toString();
 
         List<Address> addressList = null;
-        List<Address> addressListZip = null;
 
         //Use locationManager for user location
-        //Implement the Locatin Listener interface to setup location services
+        //Implement the Location Listener interface to setup location services
         LocationManager service = (LocationManager) getSystemService(LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         String provider = service.getBestProvider(criteria, false);
 
-        Log.d("MyMapsApp", "onSearch: Loaction = " + location);
+        Log.d("MyMapsApp", "onSearch: Location = " + location);
         Log.d("MyMapsApp", "onSearch: provider " + provider);
 
         LatLng userLocation = null;
@@ -161,7 +160,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             try {
                 //Get a list of the addresses
-                addressList = geocoder.getFromLocationName(location, 100, userLocation.latitude - (5.0 / 60), userLocation.longitude - (5.0 / 60), userLocation.latitude + (5.0 / 60), userLocation.longitude + (5.0 / 60));
+                addressList = geocoder.getFromLocationName(location, 10, userLocation.latitude - (5.0 / 60), userLocation.longitude - (5.0 / 60), userLocation.latitude + (5.0 / 60), userLocation.longitude + (5.0 / 60));
 
                 Log.d("MyMapsApp", "onSearch: addressList is created");
 
@@ -233,12 +232,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
+
     //locationListener to setup callbacks for requestLocationUpdates
     LocationListener locationListenerNetwork = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
 
-           //dropAmarker(LocationManager.NETWORK_PROVIDER);
+           dropAMarker(LocationManager.NETWORK_PROVIDER);
 
             //Check if doing 1 time, if so remove updates to GPS and network
             if(gotMyLocatioinOneTime == false)
@@ -277,82 +277,160 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         public void onLocationChanged(Location location) {
 
-            //dropAmarker(LocationManager.GPS_PROVIDER);
+            dropAMarker(LocationManager.GPS_PROVIDER);
             //if doing one time, remove updates to both gps and network
             //else, do nothing
         }
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
+            //switch (i)
+            switch (status) {
+                case LocationProvider.AVAILABLE:
+                    Log.d("MyMapsApp", "LocationListener: onStatusChange AVAIL");
+                    Toast.makeText(MapsActivity.this, "LocationListener: onStatusChange AVAIL", Toast.LENGTH_SHORT).show();
+                    break;
 
-//            switch (status) {
-//                case LocationProvider.AVAILABLE:
-//                    Log.d("MyMapsApp", "onStatusChanged: LocationProvider is available");
-//                    //print log.d or toast message
-//                    break;
-//                case LocationProvider.OUT_OF_SERVICE:
-//
-//                    //enable network update
-//                    break;
-//                case LocationProvider.TEMPORARILY_UNAVAILABLE:
-//                    //enable both network and gps
-//                    //break;
-//                    //default:
-//                    //enable both network and gps
+                case LocationProvider.OUT_OF_SERVICE:
+                    Log.d("MyMapsApp", "LocationListener: onStatusChange OUT OF SERVICE");
+                    Toast.makeText(MapsActivity.this, "LocationListener: onStatusChange OUT OF SERVICE", Toast.LENGTH_SHORT).show();
+                    if (ActivityCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                            && ActivityCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        return;
+                    }
+                    if (!notTrackingMyLocation) {
+                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, locationListenerNetwork);
+                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, locationListenerNetwork);
+                    }
+                    break;
+                case LocationProvider.TEMPORARILY_UNAVAILABLE:
+                    Log.d("MyMapsApp", "LocationListener: onStatusChange Temp UNAVAIL");
+                    Toast.makeText(MapsActivity.this, "LocationListener: onStatusChange Temp UNAVAIL", Toast.LENGTH_SHORT).show();
+                    if (!notTrackingMyLocation) {
+                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, locationListenerNetwork);
+                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, locationListenerNetwork);
+                    }
+                    break;
+                default:
+                    Log.d("MyMapsApp", "LocationListenerGPS - onStatusChanged default");
+                    Toast.makeText(MapsActivity.this, "LocationListenerGPS - onStatusChanged default", Toast.LENGTH_SHORT).show();
 
+                    if (!notTrackingMyLocation) {
+                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, locationListenerNetwork);
+                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, locationListenerNetwork);
+                    }
+                    break;
             }
 
-            @Override
-            public void onProviderEnabled (String provider){
+        }
+        @Override
+        public void onProviderEnabled(String provider) {
+            return;
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+            return;
+        }
+    };
+
+    public void dropAMarker (String provider) {
+        //if locationManager is null
+        //if check self permission fails
+        //return
+        //mylocation = locationManager.getLastKnownLocation(provider);
+        //latlng userlocation = null
+        //if mylocation == null print log or toast message
+        //else
+        //userLocation = new LatLng (myLocation.getLatititude, myLocation.getLongitude)
+        //CameraUpdate update = cameraUpdateFactory.newLatLngZoom(userLocation,
+        //add circle for the marker with 2 outer rings
+        //mMap.addCircle(new CircleOptions())
+        //.center UserLocation
+        //radius(i)
+        //.strokeColor(2)
+        //.fillColor(Color.Red)
+        //else add circle for the marker with 2 outer rings (blue)
+        //mMap.animationCamera(update);
+
+        if (locationManager != null) {
+            if (ActivityCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
+            myLocation = locationManager.getLastKnownLocation(provider);
+        }
 
-            @Override
-            public void onProviderDisabled (String provider){
-                return;
+        LatLng userLocation = null;
+        if (myLocation == null)
+            Log.d("MyMapsApp", "dropAmarker: no location found");
+        else {
+            userLocation = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
+            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(userLocation, MY_LOC_ZOOM_FACTOR);
+            if (provider == locationManager.GPS_PROVIDER) {
+                //add circle for the marker with 2 outer rings
+                mMap.addCircle(new CircleOptions()
+                        .center(userLocation)
+                        .radius(1)
+                        .strokeColor(Color.RED)
+                        .strokeWidth(2)
+                        .fillColor(Color.RED));
+                mMap.addCircle(new CircleOptions()
+                        .center(userLocation)
+                        .radius(3)
+                        .strokeColor(Color.RED)
+                        .strokeWidth(2)
+                        .fillColor(Color.TRANSPARENT));
+                mMap.addCircle(new CircleOptions()
+                        .center(userLocation)
+                        .radius(5)
+                        .strokeColor(Color.RED)
+                        .strokeWidth(2)
+                        .fillColor(Color.TRANSPARENT));
+            } else {
+                mMap.addCircle(new CircleOptions()
+                        .center(userLocation)
+                        .radius(1)
+                        .strokeColor(Color.BLUE)
+                        .strokeWidth(2)
+                        .fillColor(Color.BLUE));
+                mMap.addCircle(new CircleOptions()
+                        .center(userLocation)
+                        .radius(3)
+                        .strokeColor(Color.BLUE)
+                        .strokeWidth(2)
+                        .fillColor(Color.TRANSPARENT));
+                mMap.addCircle(new CircleOptions()
+                        .center(userLocation)
+                        .radius(5)
+                        .strokeColor(Color.BLUE)
+                        .strokeWidth(2)
+                        .fillColor(Color.TRANSPARENT));
             }
-        };
+            mMap.animateCamera(update);
+        }
     }
 
-//    public void dropAmarker(String provider) {
-//        if (locationManager != null) {
-//            if (ActivityCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-//                    && ActivityCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//                return;
-//            }
-//        }
-//        myLocation = locationManager.getLastKnownLocation(provider);
-//        LatLng userLocation = null;
-//        if (myLocation == null) {
-//            Log.d("MyMapsApp", "dropAMarker: myLocation is null");
-//        } else {
-//            userLocation = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
-//            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(userLocation, MY_LOC_ZOOM_FACTOR);
-//            if (provider == LocationManager.GPS_PROVIDER) {
-//                //add circle for the marker with 2 outer rings (red)
-//                mMap.addCircle(new CircleOptions().center(userLocation).radius(1).strokeColor(Color.RED).strokeWidth(2).fillColor(Color.RED));
-//            } else {
-//                mMap.addCircle(new CircleOptions().center(userLocation).radius(1).strokeColor(Color.BLUE).strokeWidth(2).fillColor(Color.BLUE));
-//            }
-//            //else add circle for the marker with two outer rings (blue)
-//            mMap.animateCamera(update);
-//        }
-//    }
-//
-//    public void trackMyLocation(View view)
-//    {
-//        //kick off the location tracker using getLocation to start the LocationListeners
-//
-//        //if(notTrackingMyLocation) getLocation(); notTrackingMyLocation = false;
-//        if(notTrackingMyLocation) {
-//            getLocation();
-//            notTrackingMyLocation = false;
-//        }
-//        //else removeUpdates for both network and gps; notTrackingMyLocation = true;
-//        else{
-//            LocationManager.GPS_PROVIDER
-//            LocationManager.NETWORK_PROVIDER
-//            notTrackingMyLocation = true;
-//        }
-//    }
-//}
+        public void trackMyLocation(View view)
+    {
+        //kick off the location tracker using getLocation to start the LocationListeners
+
+        //if(notTrackingMyLocation) getLocation(); notTrackingMyLocation = false;
+        if(notTrackingMyLocation) {
+            getLocation();
+            notTrackingMyLocation = false;
+        }
+        //else removeUpdates for both network and gps; notTrackingMyLocation = true;
+        else{
+            notTrackingMyLocation = true;
+        }
+    }
+
+
+
+    public void clearMarkers(View view) {
+          mMap.clear();
+         }
+
+
+}
