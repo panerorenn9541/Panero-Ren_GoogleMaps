@@ -38,12 +38,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private EditText locationSearch;
     private LocationManager locationManager;
     private Location myLocation;
-
     private boolean gotMyLocationOneTime;
     private boolean isGPSEnabled = false;
     private boolean isNetworkEnabled = false;
     private boolean notTrackingMyLocation = true;
-
 
     private static final long MIN_TIME_BW_UPDATES = 1000 * 5;
     private static final float MIN_DISTANCE_CHANGE_FOR_UPDATE = 0.0f;
@@ -75,9 +73,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        //LatLng sydney = new LatLng(-34, 151);
+        //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+        //mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
         //Add a marker on the map that shows your place of birth.
         //and displays the message "born here" when tapped.
@@ -230,7 +228,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 locationManager.removeUpdates(locationListenerGPS);
                 gotMyLocationOneTime = true;
             } else {
-                //if here then tracking so relaunch request for network
+                //tracking - relaunch request for network
                 if (ActivityCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                         && ActivityCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return;
@@ -266,7 +264,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 locationManager.removeUpdates(locationListenerGPS);
                 gotMyLocationOneTime = true;
             } else {
-                //if here then tracking so relaunch request for network
+                //tracking - relaunch request for network
                 if (ActivityCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                         && ActivityCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return;
